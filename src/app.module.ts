@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
 import * as Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { MongoDataServicesModule } from './frameworks/data-services/mongo/mongo-data-services.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -15,7 +15,7 @@ import { UsersModule } from './users/users.module';
         MONGO_URI: Joi.string().required(),
       }),
     }),
-    MongooseModule.forRoot(process.env.MONGO_URI),
+    MongoDataServicesModule,
     UsersModule,
   ],
   controllers: [AppController],
