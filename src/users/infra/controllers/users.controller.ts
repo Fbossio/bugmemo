@@ -6,11 +6,13 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
-import { User } from '../../domain/entities/user-entity';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-ath.guard';
 import { UsersService } from '../../use-cases/users.service';
 import { CreateUserDto, UpdateUserDto } from '../dto/user.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -27,9 +29,7 @@ export class UsersController {
 
   @Post()
   async create(@Body() user: CreateUserDto) {
-    const { name, email, password } = user;
-    const newUser = new User(name, email, password);
-    return this.usersService.create(newUser);
+    return this.usersService.create(user);
   }
 
   @Put(':id')

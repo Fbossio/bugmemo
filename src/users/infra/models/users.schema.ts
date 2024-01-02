@@ -19,6 +19,12 @@ export class Users {
 
   @Prop()
   bugs?: any[];
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
 }
 
 export const UsersSchema = SchemaFactory.createForClass(Users);

@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { EncryptPort } from '../../domain/ports/encrypt.port';
 import { UsersService } from '../../use-cases/users.service';
 import { UsersInMemoryAdapter } from '../adapters/user.in-memory.adapter';
 import { UsersController } from './users.controller';
@@ -6,6 +7,10 @@ import { UsersController } from './users.controller';
 describe('UsersController', () => {
   let controller: UsersController;
   let persistenceAdapter: UsersInMemoryAdapter;
+  const mockBcryptAdapter: EncryptPort = {
+    hashPassword: jest.fn(),
+    checkPassword: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -13,11 +18,14 @@ describe('UsersController', () => {
       providers: [
         UsersService,
         { provide: 'UsersRepository', useClass: UsersInMemoryAdapter },
+        { provide: 'EncryptPort', useValue: mockBcryptAdapter },
       ],
     }).compile();
 
     controller = module.get<UsersController>(UsersController);
     persistenceAdapter = module.get<UsersInMemoryAdapter>('UsersRepository');
+    mockBcryptAdapter.hashPassword = jest.fn().mockResolvedValue('123456');
+    mockBcryptAdapter.checkPassword = jest.fn().mockResolvedValue(true);
   });
 
   describe('Create', () => {
@@ -27,9 +35,11 @@ describe('UsersController', () => {
         email: 'john@gmail.com',
         password: '123456',
       };
-      expect(await controller.create(user)).toBeDefined();
-      expect((await controller.create(user))._id).toBeDefined();
-      expect((await controller.create(user)).name).toEqual(user.name);
+      const createdUser = await controller.create(user);
+      expect(createdUser).toBeDefined();
+      expect(createdUser._id).toBeDefined();
+      expect(createdUser.name).toEqual(user.name);
+      expect(createdUser.bugs).toEqual([]);
     });
   });
 

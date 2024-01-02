@@ -1,9 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '../../domain/entities/user-entity';
-import { UsersRepository } from '../../domain/repositories/users.repository';
+import { UsersRepository } from '../../domain/ports/users.repository';
 
 @Injectable()
 export class UsersInMemoryAdapter implements UsersRepository {
+  addBug(userId: string, bugId: string): Promise<User> {
+    throw new Error('Method not implemented.');
+  }
+  async findByEmail(email: string): Promise<User> {
+    const user = this.users.find((user) => user.email === email);
+    return user;
+  }
   private users: User[] = [];
 
   async findAll(): Promise<User[]> {
@@ -23,7 +30,7 @@ export class UsersInMemoryAdapter implements UsersRepository {
     if (index === -1) {
       throw new Error('User not found');
     }
-    this.users[index] = { ...this.users[index], ...user };
+    this.users[index] = User.createFromData({ ...this.users[index], ...user });
     return this.users[index];
   }
   async delete(id: string): Promise<User> {
